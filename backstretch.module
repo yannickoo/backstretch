@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * Informs libraries module about backstretch.
+ */
+function backstretch_libraries_info() {
+  $libraries['backstretch'] = array(
+    'name' => 'Backstretch',
+    'vendor url' => 'http://srobbin.com/blog/jquery-plugins/jquery-backstretch/',
+    'download url' => 'https://nodeload.github.com/srobbin/jquery-backstretch/zipball/1.2.5',
+    'version arguments' => array(
+      'file' => 'jquery.backstretch.js',
+      // Version 1.2.5
+      'pattern' => '/Version ([\d\.]+)/',
+      'lines' => 5,
+    ),
+    'files' => array(
+      'js' => array('jquery.backstretch.js'),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Loads the backstretch library and adds stretched image to page.
+ */
+function backstretch_page_alter(&$page) {
+  if (($library = libraries_load('backstretch')) && !empty($library['loaded'])) {
+    if ($url = variable_get('backstretch_image_url', '')) {
+      $settings = array(
+        'backstretchURL' => variable_get('backstretch_image_url', ''),
+      );
+      drupal_add_js($settings, 'setting');
+      drupal_add_js(drupal_get_path('module', 'backstretch') .'/bs.js', array('scope' => 'footer'));
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function backstretch_menu() {
+  $items['admin/appearance/backstretch'] = array(
+    'title' => 'Backstretch',
+    'description' =>  'Configure backstretch background photo.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('backstretch_admin_settings'),
+    'file' => 'backstretch.admin.inc',
+    'access arguments' => array('administer backstretch'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function backstretch_permission() {
+  return array(
+    'administer backstretch' => array(
+      'title' => t('Administer backstretch'),
+      'description' => t('Administer the backstretch background image.'),
+    ),
+  );
+}
