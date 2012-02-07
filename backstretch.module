@@ -33,6 +33,9 @@ function backstretch_page_alter(&$page) {
     if ($url = variable_get('backstretch_image_url', '')) {
       $settings = array(
         'backstretchURL' => variable_get('backstretch_image_url', ''),
+        'backstretchMinWidth' => variable_get('backstretch_min_width', 0),
+        'backstretchSelector' => variable_get('backstretch_margin_selector', ''),
+        'backstretchMarginAdj' => variable_get('backstretch_margin_adjustment', 0),
       );
       drupal_add_js($settings, 'setting');
       drupal_add_js(drupal_get_path('module', 'backstretch') .'/bs.js', array('scope' => 'footer'));
