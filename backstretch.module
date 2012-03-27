@@ -47,7 +47,14 @@ function backstretch_menu() {
  */
 function backstretch_page_alter(&$page) {
   if (($library = libraries_load('backstretch')) && !empty($library['loaded'])) {
-    if ($url = variable_get('backstretch_image_url', '')) {
+    
+    if (module_exists('context')) { 
+      if ($plugin = context_get_plugin('reaction', 'backstretch')) {
+        $plugin->execute();
+      }
+    }
+
+    if ($url = variable_get('backstretch_image_url', '') || $plugin) {
       $settings = array(
         'backstretchURL' => variable_get('backstretch_image_url', ''),
         'backstretchMinWidth' => variable_get('backstretch_min_width', 0),
@@ -73,4 +80,34 @@ function backstretch_permission() {
       'description' => t('Administer the backstretch background image.'),
     ),
   );
+}
+
+/**
+ * Implements hook_context_registry().
+ */
+function backstretch_context_registry() {
+  return array(
+    'reactions' => array(
+      'backstretch' => array(
+        'title' => t('Backstretch'),
+        'plugin' => 'backstretch',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implmenets hook_context_plugins().
+ */
+function backstretch_context_plugins() {
+  $plugins = array();
+  $plugins['backstretch'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'backstretch') . '/plugins',
+      'file' => 'backstretch_context_reaction_backstretch.inc',
+      'class' => 'backstretch_context_reaction_backstretch',
+      'parent' => 'context_reaction',
+    ),
+  );
+  return $plugins;
 }
