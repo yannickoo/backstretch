@@ -23,25 +23,6 @@ function backstretch_libraries_info() {
   return $libraries;
 }
 
-/**
- * Implements hook_page_alter().
- *
- * Loads the backstretch library and adds stretched image to page.
- */
-function backstretch_page_alter(&$page) {
-  if (($library = libraries_load('backstretch')) && !empty($library['loaded'])) {
-    if ($url = variable_get('backstretch_image_url', '')) {
-      $settings = array(
-        'backstretchURL' => variable_get('backstretch_image_url', ''),
-        'backstretchMinWidth' => variable_get('backstretch_min_width', 0),
-        'backstretchSelector' => variable_get('backstretch_margin_selector', ''),
-        'backstretchMarginAdj' => variable_get('backstretch_margin_adjustment', 0),
-      );
-      drupal_add_js($settings, 'setting');
-      drupal_add_js(drupal_get_path('module', 'backstretch') .'/bs.js', array('scope' => 'footer'));
-    }
-  }
-}
 
 /**
  * Implements hook_menu().
@@ -57,6 +38,29 @@ function backstretch_menu() {
     'type' => MENU_LOCAL_TASK,
   );
   return $items;
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Loads the backstretch library and adds stretched image to page.
+ */
+function backstretch_page_alter(&$page) {
+  if (($library = libraries_load('backstretch')) && !empty($library['loaded'])) {
+    if ($url = variable_get('backstretch_image_url', '')) {
+      $settings = array(
+        'backstretchURL' => variable_get('backstretch_image_url', ''),
+        'backstretchMinWidth' => variable_get('backstretch_min_width', 0),
+      );
+
+      if (variable_get('backstretch_scroller', FALSE)) {
+        $settings['backstretchScroller'] = TRUE;
+        $settings['backstretchScrollerAdj'] = variable_get('backstretch_scroller_adjustment', 0);
+      } 
+      drupal_add_js($settings, 'setting');
+      drupal_add_js(drupal_get_path('module', 'backstretch') .'/bs.js', array('scope' => 'footer'));
+    } 
+  } 
 }
 
 /**

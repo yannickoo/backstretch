@@ -23,23 +23,23 @@ function backstretch_admin_settings() {
     '#type' => 'textfield',
     '#default_value' => variable_get('backstretch_min_width', 0),
   );
-  $form['waypoints'] = array(
-    '#title' => t('Waypoints'),
+  $form['scroller'] = array(
+    '#title' => t('Scroller'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#description' => t('Backstretch Scroller enables you to scroll beyond the normal limits of the page in order to view the entire image without the page content.'),
   );
-  $form['waypoints']['backstretch_margin_selector'] = array(
-    '#title' => t('Margin selector'),
-    '#description' => t('If a CSS selector is provided, a margin equal to the window height will be added. This selector should ideally be at the bottom of the DOM to allow the user to scroll down to view the full photo.'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('backstretch_margin_selector', ''),
+  $form['scroller']['backstretch_scroller'] = array(
+    '#title' => t('Enable Backstretch Scroller'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('backstretch_scroller', FALSE),
   );
-  $form['waypoints']['backstretch_margin_adjustment'] = array(
-    '#title' => t('Margin adjustment'),
-    '#description' => t('Add or subtract a px amount from the margin added to the selector listed above.'),
+  $form['scroller']['backstretch_scroller_adjustment'] = array(
+    '#title' => t('Scroller adjustment'),
+    '#description' => t('If desired, this allows you keep part of your page\'s content from scrolling off the screen - useful to keep the footer in view (almost always a negative number).'),
     '#type' => 'textfield',
-    '#default_value' => variable_get('backstretch_margin_adjustment', 0),
+    '#default_value' => variable_get('backstretch_scroller_adjustment', 0),
   );
   return system_settings_form($form);
 }
