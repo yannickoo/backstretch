@@ -20,6 +20,33 @@ function backstretch_libraries_info() {
       'js' => array('jquery.backstretch.js'),
     ),
   );
+  $libraries['scrollto'] = array(
+    'name' => 'ScrollTo',
+    'vener url' => 'http://flesler.blogspot.com/2007/10/jqueryscrollto.html',
+    'download url' => 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2.zip',
+    'version arguments' => array(
+      'file' => 'jquery.scrollTo.js',
+      //@version 1.4.2
+      'pattern' => '/@version ([\d\.]+)/',
+      'lines' => 25,
+    ),
+    'files' => array(
+      'js' => array('jquery.scrollTo-min.js'),
+    ),
+  );
+  $libraries['waypoints'] = array(
+    'name' => 'Waypoints',
+    'vener url' => 'http://imakewebthings.com/jquery-waypoints/',
+    'download url' => 'https://github.com/imakewebthings/jquery-waypoints/zipball/v1.1.6',
+    'version arguments' => array(
+      'file' => 'waypoints.js',
+      'pattern' => '/v([\d\.]+)/',
+      'lines' => 5,
+    ),
+    'files' => array(
+      'js' => array('waypoints.min.js'),
+    ),
+  );
   return $libraries;
 }
 

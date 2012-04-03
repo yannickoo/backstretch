@@ -41,5 +41,22 @@ function backstretch_admin_settings() {
     '#type' => 'textfield',
     '#default_value' => variable_get('backstretch_scroller_adjustment', 0),
   );
+  
+  $waypoints = libraries_load('waypoints');
+  $scrollto = libraries_load('scrollto');
+  dpm($waypoints);
+  dpm($scrollto);
+  if (!empty($waypoints['loaded']) && !empty($scrollto['loaded'])) {
+    $form['scroller']['backstretch_scrollto'] = array(
+      '#title' => t('Enable Backstretch ScrollTo'),
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('backstretch_scrollto', FALSE),
+    );
+  }
+  else {
+    $form['scroller']['scrollto_disabled'] = array(
+      '#markup' => t('Note: You can enable the provided <em>ScrollTo</em> functionality by downloading the jQuery ScrollTo and Waypoints libraries.'),
+    );
+  }
   return system_settings_form($form);
 }
