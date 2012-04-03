@@ -94,7 +94,41 @@ function backstretch_page_alter(&$page) {
       drupal_add_js($settings, 'setting');
       drupal_add_js(drupal_get_path('module', 'backstretch') .'/bs.js', array('scope' => 'footer'));
     } 
-  } 
+  }
+  
+  if (variable_get('backstretch_scrollto', FALSE)) {
+    $waypoints = libraries_load('waypoints');
+    $scrollto = libraries_load('scrollto');
+     
+    if (!empty($waypoints['loaded']) && !empty($scrollto['loaded'])) {
+      drupal_add_css(drupal_get_path('module', 'backstretch') . '/backstretch.css');
+
+      // Enable ScrollTo.
+      $settings['backstretchScrollTo'] = TRUE;
+      drupal_add_js($settings, 'setting');
+
+      // Add footer link.
+      $page['page_bottom']['scrollto'] = array(
+        '#theme' => 'links',
+        '#attributes' => array(
+          'class' => array(
+            'footer-links',
+            'links',
+          ),
+        ),
+        '#links' => array(
+          array(
+            'title' => t('View Photo'),
+            'href' => '<front>',
+            'attributes' => array(
+              'id' => 'backstretch-scrollto',
+            ),
+            'fragment' => 'backstretchmargin',
+          ),
+        ),
+      );
+    }
+  }
 }
 
 /**
