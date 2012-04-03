@@ -44,8 +44,7 @@ function backstretch_admin_settings() {
   
   $waypoints = libraries_load('waypoints');
   $scrollto = libraries_load('scrollto');
-  dpm($waypoints);
-  dpm($scrollto);
+  
   if (!empty($waypoints['loaded']) && !empty($scrollto['loaded'])) {
     $form['scroller']['backstretch_scrollto'] = array(
       '#title' => t('Enable Backstretch ScrollTo'),
