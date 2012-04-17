@@ -75,6 +75,8 @@ function backstretch_menu() {
 function backstretch_page_alter(&$page) {
   if (($library = libraries_load('backstretch')) && !empty($library['loaded'])) {
     
+    drupal_add_css(drupal_get_path('module', 'backstretch') . '/backstretch.css');
+
     if (module_exists('context')) { 
       if ($plugin = context_get_plugin('reaction', 'backstretch')) {
         $plugin->execute();
@@ -101,8 +103,6 @@ function backstretch_page_alter(&$page) {
     $scrollto = libraries_load('scrollto');
      
     if (!empty($waypoints['loaded']) && !empty($scrollto['loaded'])) {
-      drupal_add_css(drupal_get_path('module', 'backstretch') . '/backstretch.css');
-
       // Enable ScrollTo.
       $settings['backstretchScrollTo'] = TRUE;
       drupal_add_js($settings, 'setting');
