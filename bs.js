@@ -1,6 +1,6 @@
 (function ($) {
   if ($(window).width() > Drupal.settings.backstretchMinWidth) {
-    $.backstretch(Drupal.settings.backstretchURL);
+    $.backstretch([Drupal.settings.backstretchURL]);
     
     $(document).ready(function () { 
       if (Drupal.settings.backstretchScroller) {

@@ -12,8 +12,8 @@ function backstretch_libraries_info() {
     'download url' => 'https://nodeload.github.com/srobbin/jquery-backstretch/zipball/1.2.5',
     'version arguments' => array(
       'file' => 'jquery.backstretch.js',
-      // Version 1.2.5
-      'pattern' => '/Version ([\d\.]+)/',
+      // v2.0.2
+      'pattern' => '/ v([\d\.]+) /',
       'lines' => 5,
     ),
     'files' => array(
