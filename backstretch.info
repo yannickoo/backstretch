@@ -1,4 +1,5 @@
-name = Backstrech
-description = Integrates jQuery backstretch to set full width/height background image.
+name = Backstretch
+description = Integrates jQuery Backstretch plugin.
 core = 7.x
-dependencies[] = libraries
+dependencies[] = libraries (2.x)
+dependencies[] = jquery_update (>7.x-2.2)
