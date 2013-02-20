@@ -301,6 +301,8 @@ function backstretch_field_formatter_settings_summary($field, $instance, $view_m
  * Implements hook_field_formatter_view().
  */
 function backstretch_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // This is where the output will be.
+  $element = array();
   // Store the field formatter settings.
   $settings = $display['settings'];
 
@@ -391,7 +393,7 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
   }
 
   // Prepare a renderable array.
-  $element = array(
+  $element[0] = array(
     '#theme' => 'backstretch',
     '#id' => $id,
     '#options' => $options,
