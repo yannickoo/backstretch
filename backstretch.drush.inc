@@ -41,7 +41,7 @@ function drush_backstretch_post_pm_enable() {
 /**
  * Command callback for 'backstretch-download'.
  */
-function drush_backstretch_backstretch_download() {
+function drush_backstretch_download() {
   $args = func_get_args();
   if (isset($args[0])) {
     $path = $args[0];
