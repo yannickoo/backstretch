@@ -1,5 +1,3 @@
 name = Backstretch
-description = Integrates jQuery Backstretch plugin.
+description = Integrates the jQuery Backstretch plugin.
 core = 7.x
-dependencies[] = libraries (2.x)
-dependencies[] = jquery_update (>7.x-2.2)

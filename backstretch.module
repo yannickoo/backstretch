@@ -16,29 +16,6 @@ if (module_exists('context')) {
 }
 
 /**
- * Implements hook_libraries_info().
- */
-function backstretch_libraries_info() {
-  $libraries = array();
-
-  $libraries['jquery.backstretch'] = array(
-    'name' => 'jQuery Backstretch',
-    'vendor url' => 'http://srobbin.com/jquery-plugins/backstretch/',
-    'download url' => 'https://raw.github.com/srobbin/jquery-backstretch/master/jquery.backstretch.min.js',
-    'version arguments' => array(
-      'file' => 'jquery.backstretch.min.js',
-      'pattern' => '/ v([\d\.]+) /',
-      'lines' => 1,
-    ),
-    'files' => array(
-      'js' => array('jquery.backstretch.min.js'),
-    ),
-  );
-
-  return $libraries;
-}
-
-/**
  * Implements hook_field_formatter_info().
  */
 function backstretch_field_formatter_info() {
@@ -306,13 +283,6 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
   // Store the field formatter settings.
   $settings = $display['settings'];
 
-  // Display an error message and return if jQuery is not at least 1.7.
-  $jquery = drupal_get_library('system', 'jquery');
-  if (version_compare($jquery['version'], '1.7', '<')) {
-    drupal_set_message(t('The jQuery Backstretch plugin requires at least jQuery 1.7. Please change the version in the <a href="!url">settings</a>.', array('!url' => url('admin/config/development/jquery_update'))), 'error');
-    return;
-  }
-
   // We store the default values from Backstretch formatter here.
   $formatters = backstretch_field_formatter_info();
   $default = $formatters['backstretch']['settings'];
@@ -421,16 +391,9 @@ function theme_backstretch($variables) {
   $id = $variables['id'];
   $options = $variables['options'];
 
-  // Load necessary files for the Backstretch otherwise
-  // display an error message.
-  $library = libraries_load('jquery.backstretch');
-  if ($library['loaded']) {
-    drupal_add_js(drupal_get_path('module', 'backstretch') . '/js/backstretch.js');
-    drupal_add_js(array('backstretch' => array($id => $options)), 'setting');
-  }
-  else {
-    drupal_set_message(t('The %name library could not be found.', array('%name' => $library['name'])), 'error');
-  }
+  drupal_add_js(drupal_get_path('module', 'backstretch') . '/js/jquery.backstretch.min.js');
+  drupal_add_js(drupal_get_path('module', 'backstretch') . '/js/backstretch.js');
+  drupal_add_js(array('backstretch' => array($id => $options)), 'setting');
 
   return '';
 }
