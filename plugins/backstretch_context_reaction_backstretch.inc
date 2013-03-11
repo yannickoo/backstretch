@@ -21,10 +21,6 @@ class backstretch_context_reaction_backstretch extends context_reaction {
       'path' => t('Path'),
     );
 
-    if (module_exists('media')) {
-      $sources['media'] = t('Media');
-    }
-
     $form['source']['type'] = array(
       '#type' => 'select',
       '#title' => t('Type'),
@@ -70,6 +66,9 @@ class backstretch_context_reaction_backstretch extends context_reaction {
         'visible' => array(
           ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
         ),
+        'required' => array(
+          ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
+        ),
       ),
     );
 
@@ -84,33 +83,46 @@ class backstretch_context_reaction_backstretch extends context_reaction {
           ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
           ':input[name$="[backstretch][source][entity][entity_type]"]' => array('!value' => ''),
         ),
+        'required' => array(
+          ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
+        ),
       ),
     );
 
     // If entity type and entity id is available, we can display the entity
-    // label as description for entity id field.
-    if (isset($values['source']['entity']['entity_type']) && isset($values['source']['entity']['id'])) {
+    // label as description for entity ID field.
+    if (isset($values['source']['entity']['entity_type']) && $values['source']['entity']['entity_type'] && isset($values['source']['entity']['ids']) && $values['source']['entity']['ids']) {
       $entity_type = $values['source']['entity']['entity_type'];
-      $entity_id = $values['source']['entity']['id'];
+      $entity_ids = $values['source']['entity']['ids'];
+      $entity_ids = explode(',', $entity_ids);
 
-      $entity = entity_load($entity_type, array($entity_id));
-      $entity = reset($entity);
-      $label = entity_label($entity_type, $entity);
-      $entity_description = t('Title: %label', array('%label' => $label));
+      $entities = entity_load($entity_type, $entity_ids);
+      $entities_description = array();
+
+      foreach ($entities as $entity) {
+        list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+        $label = entity_label($entity_type, $entity);
+        $entities_description[] = t('@label (@id)', array('@label' => $label, '@id' => $id));
+      }
+
+      $entity_description = implode('<br />', $entities_description);
     }
 
-    $form['source']['entity']['id'] = array(
+    $form['source']['entity']['ids'] = array(
       '#type' => 'textfield',
-      '#title' => t('Entity id'),
-      '#default_value' => isset($values['source']['entity']['id']) ? $values['source']['entity']['id'] : '',
+      '#title' => t('Entity ID'),
+      '#default_value' => isset($values['source']['entity']['ids']) ? $values['source']['entity']['ids'] : '',
       '#description' => isset($entity_description) ? $entity_description : '',
       '#states' => array(
         'visible' => array(
           ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
           ':input[name$="[backstretch][source][entity][entity_type]"]' => array('!value' => ''),
         ),
+        'required' => array(
+          ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
+        ),
       ),
-      '#element_validate' => array('element_validate_integer_positive'),
+      // @TODO: Add element_validate for comma seperated IDs.
     );
 
     $form['source']['path'] = array(
@@ -122,25 +134,11 @@ class backstretch_context_reaction_backstretch extends context_reaction {
         'visible' => array(
           ':input[name$="[backstretch][source][type]"]' => array('value' => 'path'),
         ),
+        'required' => array(
+          ':input[name$="[backstretch][source][type]"]' => array('value' => 'path'),
+        ),
       ),
     );
-
-    // Add a media file selector field if Media module exists.
-    if (module_exists('media')) {
-      // Currently we can only add one media field.
-      $form['source']['media'] = array(
-        '#type' => 'media',
-        '#title' => t('Media'),
-        '#default_value' => isset($values['source']['media']) ? $values['source']['media'] : '',
-        '#media_options' => array('types' => array('image')),
-        '#description' => t('Select images via the media file selector.'),
-        '#states' => array(
-          'visible' => array(
-            ':input[name$="[backstretch][source][type]"]' => array('value' => 'media'),
-          ),
-        ),
-      );
-    }
 
     $image_styles = image_style_options(FALSE);
     $form['image_style'] = array(
@@ -178,7 +176,7 @@ class backstretch_context_reaction_backstretch extends context_reaction {
     $form['duration'] = array(
       '#type' => 'textfield',
       '#title' => t('Duration'),
-      '#default_value' => isset($values['duration']) ? $values['duration'] : 10,
+      '#default_value' => isset($values['duration']) ? $values['duration'] : 5000,
       '#description' => t('Amount of time in between slides.'),
       '#size' => 10,
       '#field_suffix' => 'ms',
@@ -188,7 +186,7 @@ class backstretch_context_reaction_backstretch extends context_reaction {
     $form['fade'] = array(
       '#type' => 'textfield',
       '#title' => t('Fade'),
-      '#default_value' => isset($values['fade']) ? $values['fade'] : 10,
+      '#default_value' => isset($values['fade']) ? $values['fade'] : 0,
       '#description' => t('Speed of fade transition between slides. Can be an integer or a string like: %slow or %fast.', array('%slow' => 'slow', '%fast' => 'fast')),
       '#size' => 10,
       '#element_validate' => array('backstretch_element_validate_duration'),
@@ -254,9 +252,15 @@ class backstretch_context_reaction_backstretch extends context_reaction {
             // We store the entity info.
             $entity_type = $settings['source']['entity']['entity_type'];
             $field = $settings['source']['entity']['field'];
-            $entity_id = $settings['source']['entity']['id'];
+            $entity_ids = $settings['source']['entity']['ids'];
+            $entity_ids = explode(',', $entity_ids);
 
-            $entity = entity_load($entity_type, array($entity_id));
+            // We cannot continue without an entity type and an entity ID.
+            if (!$entity_type || $entity_ids) {
+              return;
+            }
+
+            $entity = entity_load($entity_type, $entity_ids);
             // Because entity_load needs an array for the ids so we have to
             // get the first array item.
             $entity = reset($entity);
@@ -296,27 +300,6 @@ class backstretch_context_reaction_backstretch extends context_reaction {
             }
 
             $options['items'] = $paths;
-            break;
-
-          case 'media':
-            // Getting the selected media.
-            $media = $settings['source']['media'];
-
-            // Currently we can only add one media field.
-            $fid = $media['fid'];
-
-            $file = file_load($fid);
-            $uri = $file->uri;
-            // Get url to image styled image if a image style was set.
-            if ($settings['image_style']) {
-              $url = image_style_url($settings['image_style'], $uri);
-            }
-            // Otherwise just get the url.
-            else {
-              $url = file_create_url($uri);
-            }
-            $options['items'][] = $url;
-
             break;
         }
 
