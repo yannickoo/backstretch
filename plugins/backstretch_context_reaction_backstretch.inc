@@ -51,7 +51,10 @@ class backstretch_context_reaction_backstretch extends context_reaction {
             continue;
           }
 
-          $image_fields[$field_name] = $field_info['label'];
+          $field_entity_types = array_keys($info['bundles']);
+          foreach ($field_entity_types as $field_entity_type) {
+            $image_fields[$field_entity_type][$field_name] = $field_info['label'];
+          }
         }
       }
     }
@@ -72,22 +75,47 @@ class backstretch_context_reaction_backstretch extends context_reaction {
       ),
     );
 
-    $form['source']['entity']['field'] = array(
-      '#type' => 'select',
-      '#title' => t('Image field'),
-      '#options' => $image_fields,
-      '#default_value' => isset($values['source']['entity']['field']) ? $values['source']['entity']['field'] : '',
-      '#description' => t('Select the image field which holds the image(s). Note that all image fields are listed here.'),
-      '#states' => array(
-        'visible' => array(
-          ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
-          ':input[name$="[backstretch][source][entity][entity_type]"]' => array('!value' => ''),
+    foreach ($entity_types as $entity_type => $entity_type_name) {
+      // We can skip the file entity type because it has no extra field
+      // for an image, the file ID is enough.
+      if ($entity_type == 'file') {
+        continue;
+      }
+      // Display a message to the user if the selected entity type has
+      // no image fields.
+      elseif (!isset($image_fields[$entity_type])) {
+        $form['source']['entity'][$entity_type]['field'] = array(
+          '#type' => 'item',
+          '#markup' => '<div class="messages warning">' . t("No image fields were found for entity type %entity-type. Please add an image field first otherwise you won't see a Backstretch.", array('%entity-type' => $entity_type_name)) . '</div>',
+          '#states' => array(
+            'visible' => array(
+              ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
+              ':input[name$="[backstretch][source][entity][entity_type]"]' => array('value' => $entity_type),
+            ),
+          ),
+        );
+        continue;
+      }
+
+      $form['source']['entity'][$entity_type]['field'] = array(
+        '#type' => 'select',
+        '#title' => t('Image field'),
+        '#options' => $image_fields[$entity_type],
+        '#default_value' => isset($values['source']['entity']['field']) ? $values['source']['entity']['field'] : '',
+        '#description' => t('Select the image field which holds the image(s). Note that all image fields are listed here.'),
+        '#states' => array(
+          'visible' => array(
+            ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
+            ':input[name$="[backstretch][source][entity][entity_type]"]' => array('value' => $entity_type),
+          ),
+          'required' => array(
+            ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
+          ),
         ),
-        'required' => array(
-          ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
-        ),
-      ),
-    );
+      );
+    }
+
+    $entity_ids_description = array(t('Enter comma-seperated entity IDs (e.g. 1,2,3).'));
 
     // If entity type and entity id is available, we can display the entity
     // label as description for entity ID field.
@@ -97,22 +125,22 @@ class backstretch_context_reaction_backstretch extends context_reaction {
       $entity_ids = explode(',', $entity_ids);
 
       $entities = entity_load($entity_type, $entity_ids);
-      $entities_description = array();
 
       foreach ($entities as $entity) {
         list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
         $label = entity_label($entity_type, $entity);
-        $entities_description[] = t('@label (@id)', array('@label' => $label, '@id' => $id));
+        $entity_ids_description[] = t('@label (@id)', array('@label' => $label, '@id' => $id));
       }
 
-      $entity_description = implode('<br />', $entities_description);
     }
+
+    $entity_ids_description = implode('<br />', $entity_ids_description);
 
     $form['source']['entity']['ids'] = array(
       '#type' => 'textfield',
       '#title' => t('Entity ID'),
       '#default_value' => isset($values['source']['entity']['ids']) ? $values['source']['entity']['ids'] : '',
-      '#description' => isset($entity_description) ? $entity_description : '',
+      '#description' => $entity_ids_description,
       '#states' => array(
         'visible' => array(
           ':input[name$="[backstretch][source][type]"]' => array('value' => 'entity'),
@@ -209,6 +237,25 @@ class backstretch_context_reaction_backstretch extends context_reaction {
     return $form;
   }
 
+  function options_form_submit($values) {
+    // Modify settings if entity was selected as source.
+    if ($values['source']['type'] == 'entity') {
+      $entity_type = $values['source']['entity']['entity_type'];
+      // Move the field setting for non file entity types.
+      if ($entity_type != 'file') {
+        $values['source']['entity']['field'] = $values['source']['entity'][$entity_type]['field'];
+      }
+      // Remove all unnecessary settings from the values.
+      foreach ($values['source']['entity'] as $key => $value) {
+        if (!in_array($key , array('entity_type', 'ids', 'field'))) {
+          unset($values['source']['entity'][$key]);
+        }
+      }
+    }
+
+    return $values;
+  }
+
   function execute() {
     foreach ($this->get_contexts() as $context) {
       if (!empty($context->reactions[$this->plugin])) {
@@ -251,35 +298,40 @@ class backstretch_context_reaction_backstretch extends context_reaction {
           case 'entity':
             // We store the entity info.
             $entity_type = $settings['source']['entity']['entity_type'];
-            $field = $settings['source']['entity']['field'];
+            $field = isset($settings['source']['entity']['field']) ? $settings['source']['entity']['field'] : '';
             $entity_ids = $settings['source']['entity']['ids'];
             $entity_ids = explode(',', $entity_ids);
 
             // We cannot continue without an entity type and an entity ID.
-            if (!$entity_type || $entity_ids) {
+            if (!$entity_type || !$entity_ids) {
               return;
             }
 
-            $entity = entity_load($entity_type, $entity_ids);
-            // Because entity_load needs an array for the ids so we have to
-            // get the first array item.
-            $entity = reset($entity);
-            // Getting the field items.
-            $items = field_get_items($entity_type, $entity, $field);
+            $entities = entity_load($entity_type, $entity_ids);
 
-            // Iterate all items and store the absolute url to it.
-            foreach ($items as &$item) {
-              $uri = $item['uri'];
-              // Get url to image styled image if a image style was set.
-              if ($settings['image_style']) {
-                $url = image_style_url($settings['image_style'], $uri);
+            foreach ($entities as $entity) {
+              // If there is a file ID we can guess that we have a file here.
+              if (isset($entity->fid) && isset($entity->uri)) {
+                $options['items'][] = file_create_url($entity->uri);
+                continue;
               }
-              // Otherwise just get the url.
-              else {
-                $url = file_create_url($uri);
+              // Getting the field items.
+              $items = field_get_items($entity_type, $entity, $field);
+              // Iterate all items and store the absolute url to it.
+              foreach ($items as &$item) {
+                $uri = $item['uri'];
+                // Get url to image styled image if a image style was set.
+                if ($settings['image_style']) {
+                  $url = image_style_url($settings['image_style'], $uri);
+                }
+                // Otherwise just get the url.
+                else {
+                  $url = file_create_url($uri);
+                }
+                $options['items'][] = $url;
               }
-              $options['items'][] = $url;
             }
+
             break;
 
           case 'path':
