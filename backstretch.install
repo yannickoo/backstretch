@@ -10,5 +10,7 @@
  */
 function backstretch_enable() {
   // Clear Context's cache so we can see the reaction immediately.
-  context_invalidate_cache();
+  if (module_exists('context')) {
+    context_invalidate_cache();
+  }
 }
