@@ -215,8 +215,9 @@ class backstretch_context_reaction_backstretch extends context_reaction {
       '#type' => 'textfield',
       '#title' => t('Fade'),
       '#default_value' => isset($values['fade']) ? $values['fade'] : 0,
-      '#description' => t('Speed of fade transition between slides. Can be an integer or a string like: %slow or %fast.', array('%slow' => 'slow', '%fast' => 'fast')),
+      '#description' => t('Speed of fade transition between slides.'),
       '#size' => 10,
+      '#field_suffix' => 'ms',
       '#element_validate' => array('backstretch_element_validate_duration'),
     );
 
@@ -289,6 +290,11 @@ class backstretch_context_reaction_backstretch extends context_reaction {
             // not the default value.
             if ($value != $default[$name] && $js) {
               $options[$js] = $value;
+            }
+
+            // The fade option has to be an integer otherwise it doesn't work.
+            if ($name == 'fade' && is_numeric($value) && intval($value) == $value) {
+              $options[$name] = (int) $options[$name];
             }
           }
         }

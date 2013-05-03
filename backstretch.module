@@ -168,8 +168,9 @@ function backstretch_field_formatter_settings_form($field, $instance, $view_mode
       '#type' => 'textfield',
       '#title' => t('Fade'),
       '#default_value' => $settings['fade'],
-      '#description' => t('Speed of fade transition between slides. Can be an integer or a string like: %slow or %fast.', array('%slow' => 'slow', '%fast' => 'fast')),
+      '#description' => t('Speed of fade transition between slides.'),
       '#size' => 10,
+      '#field_suffix' => 'ms',
       '#element_validate' => array('backstretch_element_validate_duration'),
     );
 
@@ -306,6 +307,11 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
       // not the default value.
       if ($value != $default[$name] && $js) {
         $options[$js] = $value;
+      }
+
+      // The fade option has to be an integer otherwise it doesn't work.
+      if ($name == 'fade' && is_numeric($value) && intval($value) == $value) {
+        $options[$name] = (int) $options[$name];
       }
     }
   }
