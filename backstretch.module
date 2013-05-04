@@ -456,7 +456,7 @@ function backstretch_formatter_options() {
 function backstretch_element_validate_duration($element, &$form_state) {
   $value = $element['#value'];
   // A duration can be an integer or a string like 'slow' or 'fast'.
-  if ($value !== '' && !(is_numeric($value) && intval($value) == $value && $value >= 0) && ($value != 'slow' && $value != 'fast')) {
-    form_error($element, t('%name must be an integer or a string like "slow" or "fast".', array('%name' => $element['#title'])));
+  if ($value !== '' && !is_numeric($value) && intval($value) == $value && $value >= 0) {
+    form_error($element, t('%name must be an integer.', array('%name' => $element['#title'])));
   }
 }
