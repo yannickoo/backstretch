@@ -310,7 +310,7 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
       }
 
       // The fade option has to be an integer otherwise it doesn't work.
-      if ($name == 'fade' && is_numeric($value) && intval($value) == $value) {
+      if ($name == 'fade' && $value != $default[$name] && is_numeric($value) && intval($value) == $value) {
         $options[$name] = (int) $options[$name];
       }
     }
