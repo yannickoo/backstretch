@@ -152,28 +152,35 @@ function backstretch_field_formatter_settings_form($field, $instance, $view_mode
     ),
   );
 
-  // Make duration and fade setting only available for multiple value field.
+
+  $element['duration'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Duration'),
+    '#default_value' => $settings['duration'],
+    '#description' => t('Amount of time in between slides.'),
+    '#size' => 10,
+    '#field_suffix' => 'ms',
+    '#element_validate' => array('element_validate_integer_positive'),
+  );
+
+  // Disable duration setting if it is a one value field.
+  if ($field['cardinality'] == '1') {
+    $element['duration']['#disabled'] = TRUE;
+    $element['duration']['#description'] = '<strong>' . t('Duration setting is only allowed for multi value fields.') . '</strong>';
+  }
+
+  $element['fade'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Fade'),
+    '#default_value' => $settings['fade'],
+    '#description' => t('Speed of fade transition between slides.'),
+    '#size' => 10,
+    '#field_suffix' => 'ms',
+    '#element_validate' => array('backstretch_element_validate_duration'),
+  );
+
+  // Make cardinality setting only available for multiple value field.
   if ($field['cardinality'] != '1') {
-    $element['duration'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Duration'),
-      '#default_value' => $settings['duration'],
-      '#description' => t('Amount of time in between slides.'),
-      '#size' => 10,
-      '#field_suffix' => 'ms',
-      '#element_validate' => array('element_validate_integer_positive'),
-    );
-
-    $element['fade'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Fade'),
-      '#default_value' => $settings['fade'],
-      '#description' => t('Speed of fade transition between slides.'),
-      '#size' => 10,
-      '#field_suffix' => 'ms',
-      '#element_validate' => array('backstretch_element_validate_duration'),
-    );
-
     $element['delta'] = array(
       '#type' => 'select',
       '#title' => t('Which image should be displayed?'),
@@ -261,7 +268,7 @@ function backstretch_field_formatter_settings_summary($field, $instance, $view_m
 
   // Remove slideshow specific settings when only one image is allowed.
   if ($field['cardinality'] == '1') {
-    unset($options['duration'], $options['fade'], $options['delta']);
+    unset($options['duration'], $options['delta']);
   }
 
   // Remove image field setting when field type is not entityreference.
