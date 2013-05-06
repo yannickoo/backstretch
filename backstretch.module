@@ -234,6 +234,9 @@ function backstretch_field_formatter_settings_summary($field, $instance, $view_m
       if ($name == 'image_style' && $value == '') {
         continue;
       }
+      if ($name == 'duration' || $name == 'fade') {
+        $value .= ' ms';
+      }
       if ($name == 'delta' && $value == '') {
         continue;
       }
