@@ -293,7 +293,7 @@ class backstretch_context_reaction_backstretch extends context_reaction {
             }
 
             // The fade option has to be an integer otherwise it doesn't work.
-            if ($name == 'fade' && is_numeric($value) && intval($value) == $value) {
+            if ($name == 'fade' && $value != $default[$name] && is_numeric($value) && intval($value) == $value) {
               $options[$name] = (int) $options[$name];
             }
           }
