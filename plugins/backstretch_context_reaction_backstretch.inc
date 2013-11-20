@@ -201,6 +201,20 @@ class backstretch_context_reaction_backstretch extends context_reaction {
       ),
     );
 
+    // @see https://drupal.org/node/2140009
+    /*
+    $form['tokens'] = array(
+      '#type' => 'container',
+      '#theme' => 'token_tree',
+      '#token_types' => array($entity_type),
+      '#dialog' => TRUE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name$="[element]"]' => array('value' => 'other'),
+        ),
+      ),
+    );*/
+
     $form['duration'] = array(
       '#type' => 'textfield',
       '#title' => t('Duration'),
@@ -285,6 +299,12 @@ class backstretch_context_reaction_backstretch extends context_reaction {
             if ($name == 'element' || ($name == 'element_other' && $settings['element'] == '')) {
               continue;
             }
+
+            // @see https://drupal.org/node/2140009
+            // Replace tokens in the "Other element" field.
+            /*if ($name == 'element_other') {
+              $value = token_replace($value, array($entity_type => $entity));
+            }*/
 
             // We only put the setting into $options when it is
             // not the default value.

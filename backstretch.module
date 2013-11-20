@@ -152,6 +152,18 @@ function backstretch_field_formatter_settings_form($field, $instance, $view_mode
     ),
   );
 
+  $element['tokens'] = array(
+    '#type' => 'container',
+    '#theme' => 'token_tree',
+    '#token_types' => array($instance['entity_type']),
+    '#dialog' => TRUE,
+    '#states' => array(
+      'visible' => array(
+        ':input[name$="[element]"]' => array('value' => 'other'),
+      ),
+    ),
+  );
+
 
   $element['duration'] = array(
     '#type' => 'textfield',
@@ -311,6 +323,11 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
       // We need some special handling with the element settings.
       if ($name == 'element' || ($name == 'element_other' && $settings['element'] == '')) {
         continue;
+      }
+
+      // Replace tokens in the "Other element" field.
+      if ($name == 'element_other') {
+        $value = token_replace($value, array($entity_type => $entity));
       }
 
       // We only put the setting into $options when it is
