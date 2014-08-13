@@ -9,8 +9,9 @@ INTRODUCTION
 ------------
 
 Current Maintainers:
-  yannickoo (http://drupal.org/user/531118)
-  Matt Tucker (http://drupal.org/user/153963)
+
+* [yannickoo](http://drupal.org/user/531118)
+* [Matt Tucker](http://drupal.org/user/153963)
 
 This module provides a field formatter for jQuery Backstretch [1].
 A simple jQuery plugin that allows you to add a dynamically-resized,
