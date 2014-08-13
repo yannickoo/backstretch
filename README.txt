@@ -9,7 +9,7 @@ INTRODUCTION
 ------------
 
 Current Maintainers:
-  Yannick Leyendecker (http://drupal.org/user/531118)
+  yannickoo (http://drupal.org/user/531118)
   Matt Tucker (http://drupal.org/user/153963)
 
 This module provides a field formatter for jQuery Backstretch [1].
