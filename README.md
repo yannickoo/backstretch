@@ -1,24 +1,15 @@
-CONTENTS OF THIS FILE
----------------------
-
- * Introduction
- * Installation
-
-
-INTRODUCTION
-------------
+# Introduction
 
 Current Maintainers:
 
-* [yannickoo](http://drupal.org/user/531118)
+* [yannickoo](https://www.drupal.org/u/yannickoo)
 * [Matt Tucker](http://drupal.org/user/153963)
 
 This module provides a field formatter for jQuery Backstretch [1].
 A simple jQuery plugin that allows you to add a dynamically-resized,
 slideshow-capable background image to any page or element.
 
-INSTALLATION
-------------
+# Installation
 
 1. Install the module the drupal way [2]
 
