@@ -164,7 +164,6 @@ function backstretch_field_formatter_settings_form($field, $instance, $view_mode
     ),
   );
 
-
   $element['duration'] = array(
     '#type' => 'textfield',
     '#title' => t('Duration'),
@@ -350,7 +349,7 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
   // We need the entity id here because there could be multiple images with
   // Backstretch.
   $ids = entity_extract_ids($entity_type, $entity);
-  $id = str_replace('_', '-', $entity_type) . '-' . $ids[0];
+  $id = drupal_clean_css_identifier($entity_type . '-' . $ids[0]);
 
   // Special handling for entityreference fields.
   if ($field['type'] == 'entityreference') {
