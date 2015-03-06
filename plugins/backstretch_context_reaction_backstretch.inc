@@ -252,6 +252,13 @@ class backstretch_context_reaction_backstretch extends context_reaction {
       '#description' => t('Should we center the image on the Y axis?'),
     );
 
+    $form['random'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Random'),
+      '#default_value' => isset($values['random']) ? $values['random'] : FALSE,
+      '#description' => t('Check when a random image should be displayed instead of a slideshow.'),
+    );
+
     return $form;
   }
 
@@ -386,6 +393,11 @@ class backstretch_context_reaction_backstretch extends context_reaction {
 
             $options['items'] = $paths;
             break;
+        }
+
+        if ($settings['random']) {
+          $random_key = array_rand($options['items']);
+          $options['items'] = array($options['items'][$random_key]);
         }
 
         // Prepare a renderable array.
