@@ -351,12 +351,12 @@ function backstretch_field_formatter_view($entity_type, $entity, $field, $instan
   $ids = entity_extract_ids($entity_type, $entity);
   $id = drupal_clean_css_identifier($entity_type . '-' . $ids[0]);
 
-  // Special handling for entityreference fields.
+  // Special handling for entity reference fields.
   if ($field['type'] == 'entityreference') {
     // Store the set entity type.
     $target_entity_type = $field['settings']['target_type'];
 
-    // We store all images from referenced entites here temporary.
+    // We store all images from referenced entities here temporary.
     $new_items = array();
 
     // Iterate all entity references.
